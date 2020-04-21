@@ -1,24 +1,53 @@
 # RFID-transceiver
-Tool for reading RFID tags and (soon to be) transmitting them to a remote server with the help of ST Microelectronics CH95HF transceiver board.
+Tool for reading RFID tags and (soon to be) transmitting them to a remote server with the help of ST Microelectronics CR95HF transceiver board. Ideal for usage in various IOT implementations.
 
-## Supports
+## Features
 - Read real active or passive RFID tags through ISO 15693 protocol.
   - Currently only 1 protocol at a time with manually triggered scans.
 - Simulate the aforementioned process of reading of RFID tags.
 
+## Dependencies
+External dependencies involve libusb, the CR95HF library, and the POCO libraries. **Do note:** the latest libusb API changes breaks the functionality, 1.0.22 or earlier required.
+
 ## Installation
+Path assumptions are made that the CR95HF shared library is in the library path, and POCO shared libraries are assumed to be installed in /usr/local/lib/poco.
+
 To install and run do (root privileges required for usb interface):
 
     make
+    sudo ./rfid
+
+If alternative shared library directories are used, to override one or the other, or both, default path, do:
+
+    make CLIBS=/path/to/libCR95HF.so POCOH=/path/to/poco
     sudo ./rfid
 
 To remove:
 
     make clean
     
+## Troubleshooting
+If errors regarding functionality implemented in the external libraries; CR95HF and POCO, occur during runtime. Remember to rebuild cache:
+
+    sudo ldconfig -v
+
+And verify that symlinks to said libraries are in order:
+
+    ldconfig -p
+
+If libraries are placed in a custom folder that isn't already in the search path, it may be required to add the path manually:
+
+    export LD_LIBRARY_PATH=/path/to/lib:$LD_LIBRARY_PATH
+
+or, for a more persistent solution:
+
+    cd /etc/ld.so.conf.d
+    echo "/path/to/lib" >> libname.conf
+    sudo ldconfig -v
+
 ## Todo
-- Add http support.
+- Add HTTP support.
 - Implement more sophisticated solutions for rescan and protocol rotation.
 - Implement solution recognizing RFID tags leaving and entering the environment.
 - Expand current configuration possibilities.
-- More tests and comments.
+- More documentation, tests and comments.
