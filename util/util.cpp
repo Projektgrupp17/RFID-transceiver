@@ -1,9 +1,11 @@
+#include "util.hpp"
 #include <iostream>
 #include <string>
 #include <cstring>
 #include <regex>
+#include <stdexcept>
 
-std::string hex_to_bin(char hex[]) {
+std::string util::hex_to_bin(char hex[]) {
     int const length = strlen(hex);
     std::string binary = "";
 
@@ -48,7 +50,94 @@ std::string hex_to_bin(char hex[]) {
     return binary;
 }
 
-void arr_slice(char arr[], char arr_part[], int begin, int end) {
+std::string util::reverse_tag(char hex[]) {
+    int const len = strlen(hex);
+    std::string reversed = "";
+
+    for (int i = (len - 1); i > 0; i -= 2) {
+        reversed += hex[i - 1];
+        reversed += hex[i];
+    }
+
+    if (len % 2) {
+        reversed += hex[0];
+    }
+
+    return reversed;
+}
+
+std::string util::identify_manufacturer(std::string protocol, char hex[]) {
+    int const len = strlen(hex);
+    std::string manufacturer = "";
+    std::string identification_bits = "";
+
+    if (len == 0) {
+        throw std::invalid_argument("Invalid argument; non-existent tag.");
+    }
+
+    if (len < 4) {
+        throw std::invalid_argument("Invalid argument; invalid tag format");
+    }
+
+    if (protocol == "15693") {
+        identification_bits += hex[len - 4];
+        identification_bits += hex[len - 3];
+
+        if (identification_bits == "01") {
+            manufacturer = "Motorola";
+        } else if (identification_bits == "02") {
+            manufacturer = "ST Microelectronics";
+        } else if (identification_bits == "03") {
+            manufacturer = "Hitachi";
+        } else if (identification_bits == "04") {
+            manufacturer = "NXP Semiconductors";
+        } else if (identification_bits == "05") {
+            manufacturer = "Infineon Technologies";
+        } else if (identification_bits == "06") {
+            manufacturer = "Cylinc";
+        } else if (identification_bits == "07") {
+            manufacturer = "Texas Intruments Tag-it";
+        } else if (identification_bits == "08") {
+            manufacturer = "Fujitsu Limited";
+        } else if (identification_bits == "09") {
+            manufacturer = "Matsushita Electric Industrial";
+        } else if (identification_bits == "0A") {
+            manufacturer = "NEC";
+        } else if (identification_bits == "0B") {
+            manufacturer = "Oki Electric";
+        } else if (identification_bits == "0C") {
+            manufacturer = "Toshiba";
+        } else if (identification_bits == "0D") {
+            manufacturer = "Mitsubishi Electric";
+        } else if (identification_bits == "0E") {
+            manufacturer = "Samsung Electronics";
+        } else if (identification_bits == "0F") {
+            manufacturer = "Hyundai Electronics";
+        } else if (identification_bits == "10") {
+            manufacturer = "LG Semiconductors";
+        } else if (identification_bits == "16") {
+            manufacturer = "EM Microelectronic-Marin";
+        } else if (identification_bits == "1F") {
+            manufacturer = "Melexis";
+        } else if (identification_bits == "2B") {
+            manufacturer = "Maxim";
+        } else if (identification_bits == "33") {
+            manufacturer = "AMIC";
+        } else if (identification_bits == "44") {
+            manufacturer = "Gentag, Inc (USA)";
+        } else if (identification_bits == "45") {
+            manufacturer = "Invengo Information Technology Co.Ltd";
+        }
+    }
+
+    if (!manufacturer.size()) {
+        throw std::invalid_argument("Invalid argument; invalid tag - unknown manufacturer namespace.");
+    }
+
+    return manufacturer;
+}
+
+void util::arr_slice(char arr[], char arr_part[], int begin, int end) {
     int const length = strlen(arr);
     int j = 0;
 
@@ -70,26 +159,60 @@ void arr_slice(char arr[], char arr_part[], int begin, int end) {
     for (int i = begin; i < end; i++, j++) {
         arr_part[j] = arr[i];
     }
+
+    arr_part[++j] = '\0';
 }
 
-void arr_clear(char arr[], int size) {
+void util::arr_clear(char arr[], int size) {
     for (int i = 0; i < size; i++) {
         arr[i] = '\0';
     }
 }
 
-void trim(std::string str, std::string* trimmed_str) {
+void util::trim(std::string str, std::string &trimmed_str) {
     std::regex space("\\s");
-    *trimmed_str = "";
+    trimmed_str = "";
 
     for (int i = 0; i < (int)str.size(); i++) {
         if (!std::regex_match(str.substr(i, 1), space)) {
-            (*trimmed_str).append(str.substr(i, 1));
+            trimmed_str.append(str.substr(i, 1));
         }
     }
 }
 
-void split(std::string str, std::string ch, std::vector<std::string>* arr) {
+void util::replace(std::string str, std::string &replaced_str, std::string pattern, std::string to_replace) {
+   std::regex pat("^(.+)?" + pattern + "(.+)?$");
+   std::string temp = str;
+
+   if (pattern == "") {
+       throw std::invalid_argument("Unable to replace nothing; illegal argument.");
+   }
+
+    while (std::regex_match(temp, pat)) {
+        std::smatch match;
+        std::regex_search(temp, match, pat);
+
+        if ((int)match.size() > 1) {
+            temp = match[1].str();
+        }
+
+        temp += to_replace;
+
+        if ((int)match.size() > 2) {
+            temp += match[2].str();
+        }
+    }
+
+    replaced_str = temp;
+}
+
+void util::slice(std::string str, std::string &sliced_str, int begin, int end) {
+    for (int i = begin; i < end; i++) {
+        sliced_str += str[i];
+    }
+}
+
+void util::split(std::string str, std::string ch, std::vector<std::string>* arr) {
     int begin = 0;
 
     for (int i = 0; i < (int)str.size(); i++) {

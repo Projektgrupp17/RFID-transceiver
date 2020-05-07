@@ -1,10 +1,18 @@
 #ifndef READER_HPP
 #define READER_HPP
-#include "../data/TagData.hpp"
+
 #include <string>
 
-int establish_connection();
-int select_protocol(std::string protocol);
-void scan_for_tags(TagData tag_data);
+class config;
+class tag_data;
+
+class reader {
+    public:
+        void run(config &config);
+    private:
+        int establish_connection();
+        int select_protocol(config &conf);
+        void scan_for_tags(config &conf, tag_data &tag_data);
+};
 
 #endif

@@ -3,11 +3,18 @@ Tool for reading RFID tags and (soon to be) transmitting them to a remote server
 
 ## Features
 - Read real active or passive RFID tags through ISO 15693 protocol.
-  - Currently only 1 protocol at a time with manually triggered scans.
+  - Currently only 1 protocol at a time; no protocol rotation.
+  - Currently no rescan interval possibilities; manually triggered scans.
 - Simulate the aforementioned process of reading of RFID tags.
+- HTTP transmission of identified tag to remoate server.
 
 ## Dependencies
-External dependencies involve libusb, the CR95HF library, and the POCO libraries. **Do note:** the latest libusb API changes breaks the functionality, 1.0.22 or earlier required.
+External dependencies involve:
+- libusb.
+- CR95HF library.
+- POCO libraries.
+
+**Do note:** the latest libusb API changes breaks the functionality, 1.0.22 or earlier required (only tested with 1.0.22).
 
 ## Installation
 Path assumptions are made that the CR95HF shared library is in the library path, and POCO shared libraries are assumed to be installed in /usr/local/lib/poco.
