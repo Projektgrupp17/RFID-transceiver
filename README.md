@@ -4,9 +4,8 @@ Tool for reading RFID tags and (soon to be) transmitting them to a remote server
 ## Features
 - Read real active or passive RFID tags through ISO 15693 protocol.
   - Currently only 1 protocol at a time; no protocol rotation.
-  - Currently no rescan interval possibilities; manually triggered scans.
 - Simulate the aforementioned process of reading of RFID tags.
-- HTTP transmission of identified tag to remoate server.
+- HTTP transmission of identified tag to remote server.
 
 ## Dependencies
 External dependencies involve:
@@ -53,7 +52,6 @@ or, for a more persistent solution:
     sudo ldconfig -v
 
 ## Todo
-- Add HTTP support.
 - Implement more sophisticated solutions for rescan and protocol rotation.
 - Implement solution recognizing RFID tags leaving and entering the environment.
 - Expand current configuration possibilities.
