@@ -13,9 +13,9 @@ void alert_error(std::string input, std::string reason);
 void match_params(std::string input, std::regex regex, std::smatch* match, std::string* str);
 
 int main() {
-    reader rdr;
-    simulate sim;
     config conf;
+    reader rdr;
+    simulate sim = simulate(conf);
 
     while (conf.run()) {
         display_menu(rdr, sim, conf);
@@ -30,7 +30,7 @@ void display_menu(reader &rdr, simulate &sim, config &conf) {
     if (input == 'a' || input == 'A') {
         configure(conf);
     } else if (input == 'c' || input == 'C') {
-        sim.run(conf);
+        sim.run();
     } else if (input == 'q') {
         conf.quit();
     } else {
@@ -107,7 +107,7 @@ void configure(config &conf, bool first_time) {
             }
         } else if (cmd == "url") {
             if (read) {
-                std::cout << "Current transmission url: " << conf.get_transmission_uri() << "\n";
+                std::cout << "Current transmission url: " << conf.get_reg_uri() << "\n";
             } else {
                 std::regex param("^\\s*(((http|https)://)?((www\\.)?[a-zA-Z0-9\\.\\-]{1,253}\\.[a-zA-Z0-9\\-]{2,25}|([12]?[0-9]{1,2}\\.){3}([12]?[0-9]{1,2})|localhost)(:[1-9][0-9]{1,4})?(/[a-zA-Z0-9\\-]+)*/?(\\?[a-zA-Z0-9]+=[a-zA-Z0-9]+)*)\\s*$");
                 match_params(options, param, &p_match, &match_str);

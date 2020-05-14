@@ -3,15 +3,17 @@
 #include "../util/util.hpp"
 #include "../config/config.hpp"
 #include "../data/tag_data.hpp"
+#include "../data/tag_collection.hpp"
 #include <iostream>
 #include <string>
 #include <random>
 #include <chrono>
 #include <thread>
 
-void simulate::run(config &conf) {
+simulate::simulate(config &con) : conf(con), trans(transmit()), t_col(tag_collection(trans, conf)) {}
+
+void simulate::run() {
     int status = establish_connection();
-    transmit trans;
     tag_data t_data;
 
     if (status == 0) {
@@ -28,6 +30,7 @@ void simulate::run(config &conf) {
                 if (t_data.tag_hex.size()) {
                     t_data.output_tag_summary(t_data);
                     trans.send_tag_to_server(conf, t_data);
+                    t_col.connect(t_data);
                 }
 
                 if (std::stoi(conf.get_repeat()) - i != 1) {
@@ -42,6 +45,7 @@ void simulate::run(config &conf) {
     } else {
         std::cout << "Connection to transceiver failed.\n";
     }
+
 }
 
 int simulate::establish_connection(bool status) {

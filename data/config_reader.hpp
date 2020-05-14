@@ -10,6 +10,7 @@ struct config_reader {
         std::vector<std::string> rotate;
         bool rotate_protocol;
         std::string scan_delay;
+        std::string time_to_live;
         std::string repeat;
 };
 

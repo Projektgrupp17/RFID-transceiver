@@ -10,11 +10,11 @@ CUSTOM_DEP=/usr/local/lib
 CPPFLAGS=-g -Wall -I$(CLIBS) -I$(POCOH) -I$(POCOH)/Poco/ -I$(POCOH)/Poco/Net -I$(POCOH)/Poco/JSON -I$(POCOH)/Poco/Dynamic -I$(TLIBS) -I$(TLIBS)/gtest -I$(TLIBS)/gtest/internal
 LDFLAGS=-g
 LDLIBS=-L/lib -L/usr/local/lib/poco/lib -L/home/drax/Projects/dev/projects/RFID-transceiver/lib -lCR95HF -lusb-1.0 -lPocoNet -lPocoJSON -lPocoFoundation -lgtest -lgtest_main -lpthread
-OBJFILES=main.o reader/reader.o simulate/simulate.o transmit/transmit.o util/util.o util/interpreter.o config/config.o tests/test.o data/tag_data.o
+OBJFILES=main.o reader/reader.o simulate/simulate.o transmit/transmit.o util/util.o util/interpreter.o config/config.o tests/test.o data/tag_data.o data/tag.o data/tag_collection.o data/tag_deactivator.o
 
 all: rfid test
 rfid: $(OBJFILES)
-	$(GCC) $(LDFLAGS) -o rfid main.o reader/reader.o util/util.o util/interpreter.o simulate/simulate.o config/config.o data/tag_data.o transmit/transmit.o $(LDLIBS)
+	$(GCC) $(LDFLAGS) -o rfid main.o reader/reader.o util/util.o util/interpreter.o simulate/simulate.o config/config.o data/tag_data.o data/tag.o data/tag_collection.o data/tag_deactivator.o transmit/transmit.o $(LDLIBS)
 main.o: main.cpp reader/reader.hpp simulate/simulate.hpp config/config.hpp util/util.hpp
 	$(GCC) $(CPPFLAGS) -o main.o -c main.cpp
 reader/reader.o: reader/reader.cpp reader/reader.hpp util/util.hpp data/tag_data.hpp config/config.hpp transmit/transmit.hpp include/libcr95hf.h
@@ -31,12 +31,18 @@ config/config.o: config/config.cpp config/config.hpp
 	$(GCC) $(CPPFLAGS) -o config/config.o -c config/config.cpp
 data/tag_data.o: data/tag_data.cpp data/tag_data.hpp
 	$(GCC) $(CPPFLAGS) -o data/tag_data.o -c data/tag_data.cpp
-tests/test.o: tests/test.cpp config/config.hpp util/util.hpp util/interpreter.hpp
+data/tag.o: data/tag.cpp data/tag.hpp data/tag_data.hpp
+	$(GCC) $(CPPFLAGS) -o data/tag.o -c data/tag.cpp
+data/tag_collection.o: data/tag_collection.cpp data/tag_collection.hpp data/tag.hpp data/tag_data.hpp transmit/transmit.hpp config/config.hpp
+	$(GCC) $(CPPFLAGS) -o data/tag_collection.o -c data/tag_collection.cpp
+data/tag_deactivator.o: data/tag_deactivator.cpp data/tag_deactivator.hpp data/tag_data.hpp data/tag_collection.hpp transmit/transmit.hpp config/config.hpp
+	$(GCC) $(CPPFLAGS) -o data/tag_deactivator.o -c data/tag_deactivator.cpp
+tests/test.o: tests/test.cpp config/config.hpp util/util.hpp util/interpreter.hpp data/tag_data.hpp data/tag_collection.hpp transmit/transmit.hpp
 	$(GCC) $(CPPFLAGS) -o tests/test.o -c tests/test.cpp
 clean:
 	rm -f core rfid test $(OBJFILES)
 test: $(OBJFILES)
-	$(GCC) $(LDFLAGS) -o test tests/test.o config/config.o util/util.o util/interpreter.o $(LDLIBS)
+	$(GCC) $(LDFLAGS) -o test tests/test.o config/config.o util/util.o util/interpreter.o data/tag.o data/tag_data.o data/tag_collection.o data/tag_deactivator.o transmit/transmit.o $(LDLIBS)
 #dependencies:
 #custom_dependencies:
 #	sudo rm -f -r $(CUSTOM_DEP)/poco

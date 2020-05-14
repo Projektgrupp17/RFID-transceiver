@@ -8,11 +8,16 @@ config::config() {
     status = true;
     id.location_id = "123";
     id.rfid_reader_id = "456";
-    transmit.hostname = "127.0.0.1";
-    transmit.port = "1234";
+    transmit.reg_hostname = "127.0.0.1";
+    transmit.reg_port = "1234";
+    transmit.reg_path = "/register";
+    transmit.unreg_hostname = "127.0.0.1";
+    transmit.unreg_port = "1234";
+    transmit.unreg_path = "/unregister";
     reader.protocol = "15693";
     reader.rotate_protocol = false;
     reader.scan_delay = "1000";
+    reader.time_to_live = "5000";
     reader.repeat = "1";
     conf.select_protocol = "01";
     conf.select_parameters = "0D";
@@ -62,20 +67,36 @@ std::string config::get_rfid_send_data_confbits() {
     return conf.send_data;
 }
 
-std::string config::get_transmission_uri() {
-    return transmit.original_url;
+std::string config::get_reg_uri() {
+    return transmit.reg_original_url;
 }
 
-std::string config::get_transmission_hostname() {
-    return transmit.hostname;
+std::string config::get_reg_hostname() {
+    return transmit.reg_hostname;
 }
 
-std::string config::get_transmission_path() {
-    return transmit.path.size() ? transmit.path : "/";
+std::string config::get_reg_path() {
+    return transmit.reg_path.size() ? transmit.reg_path : "/";
 }
 
-std::string config::get_transmission_port() {
-    return transmit.port.size() ? transmit.port : "80";
+std::string config::get_reg_port() {
+    return transmit.reg_port.size() ? transmit.reg_port : "80";
+}
+
+std::string config::get_unreg_uri() {
+    return transmit.unreg_original_url;
+}
+
+std::string config::get_unreg_hostname() {
+    return transmit.unreg_hostname;
+}
+
+std::string config::get_unreg_path() {
+    return transmit.unreg_path.size() ? transmit.unreg_path : "/";
+}
+
+std::string config::get_unreg_port() {
+    return transmit.unreg_port.size() ? transmit.reg_port : "80";
 }
 
 std::string config::get_sim_seed_no() {
@@ -84,6 +105,10 @@ std::string config::get_sim_seed_no() {
 
 std::string config::get_scan_delay() {
     return reader.scan_delay;
+}
+
+std::string config::get_time_to_live() {
+    return reader.time_to_live;
 }
 
 std::string config::get_repeat() {
@@ -154,15 +179,15 @@ void config::set_rfid_rotate(std::vector<std::string> protocols) {
 }
 
 void config::set_transmission_uri(std::string url) {
-    transmit.original_url = url;
+    transmit.reg_original_url = url;
     std::regex rest("^((http|https)://)?(www.)?(([A-Za-z0-9\\-]+\\.)+([A-Za-z]+))(:([0-9]{1,5}))?((/[a-zA-Z0-9\\-]*)*/?)$");
     std::smatch match;
 
     std::regex_search(url, match, rest);
-    transmit.protocol = match[2];
-    transmit.hostname = match[4];
-    transmit.port = match[8];
-    transmit.path = match[9];
+    transmit.reg_protocol = match[2];
+    transmit.reg_hostname = match[4];
+    transmit.reg_port = match[8];
+    transmit.reg_path = match[9];
 }
 
 void config::set_scan_delay(std::string delay) {

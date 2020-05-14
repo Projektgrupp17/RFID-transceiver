@@ -2,9 +2,13 @@
 #define READER_HPP
 
 #include <string>
+#include <list>
+#include <future>
+
 
 class config;
 class tag_data;
+class tag;
 
 class reader {
     public:
