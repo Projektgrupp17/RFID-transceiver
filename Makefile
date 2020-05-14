@@ -43,6 +43,8 @@ clean:
 	rm -f core rfid test $(OBJFILES)
 test: $(OBJFILES)
 	$(GCC) $(LDFLAGS) -o test tests/test.o config/config.o util/util.o util/interpreter.o data/tag.o data/tag_data.o data/tag_collection.o data/tag_deactivator.o transmit/transmit.o $(LDLIBS)
+check:
+	./test
 #dependencies:
 #custom_dependencies:
 #	sudo rm -f -r $(CUSTOM_DEP)/poco
