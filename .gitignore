@@ -3,5 +3,4 @@ core
 test
 *.o
 .vscode/*
-tests/*
 
