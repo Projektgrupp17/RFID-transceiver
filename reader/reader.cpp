@@ -2,30 +2,40 @@
 #include "../config/config.hpp"
 #include "../data/tag_data.hpp"
 #include "../util/util.hpp"
-#include "../transmit/transmit.hpp"
+#include "../transmit/transmitter.hpp"
 #include <iostream>
 #include <cstring>
 #include <thread>
 #include <chrono>
 #include "../include/libcr95hf.h"
 
-void reader::run(config &conf) {
+reader::reader(config &con) : conf(con), trans(transmitter()), t_col(tag_collection(conf, trans)), w_man(work_manager(t_col)), t_deact(tag_deactivator(conf, trans, w_man, this)) {
+    deactivator_ready = false;
+};
+
+void reader::run() {
     int status = establish_connection();
-    transmit trans;
     tag_data t_data;
 
     if (status == 0) {
         std::cout << "Connection established successfully.\n"
             << "Selecting protocol.\n";
-        status = select_protocol(conf);
+        status = select_protocol();
 
         if (status == 0) {
+            t_deact.set_master(false);
+
             for (int i = 0; i < std::stoi(conf.get_repeat()); i++) {
-                scan_for_tags(conf, t_data);
+                if (deactivator_ready) {
+                    w_man.handle_msg(t_deact);
+                    toggle_deactivator_ready();
+                }
+
+                scan_for_tags(t_data);
 
                 if (t_data.tag_hex.size()) {
                     t_data.output_tag_summary(t_data);
-                    trans.send_tag_to_server(conf, t_data);
+                    trans.register_tag_with_server(conf, t_data);
                 }
 
                 if (std::stoi(conf.get_repeat()) - i != 1) {
@@ -33,7 +43,14 @@ void reader::run(config &conf) {
                     t_data = tag_data();
                     std::this_thread::sleep_for(std::chrono::milliseconds(std::stoi(conf.get_scan_delay())));
                 }
+
+                if (deactivator_ready) {
+                    w_man.handle_msg(t_deact);
+                    toggle_deactivator_ready();
+                }
             }
+
+            t_deact.set_master(true);
         } else {
             std::cout << "RF field activation failed.\n";
         }
@@ -48,14 +65,14 @@ int reader::establish_connection() {
     return CR95HFlib_USBConnect();
 }
 
-int reader::select_protocol(config &conf) {
+int reader::select_protocol() {
     char req[32] = "", res[32] = "";
     strcpy(req, (conf.get_rfid_select_protocol_confbits() + conf.get_rfid_select_parameters_confbits()).c_str());
     std::cout << "Activating RF field for passive devices.\nSelected protocol: ISO " << conf.get_rfid_protocol() << ".\n";
     return CR95HFlib_Select(req, res);
 }
 
-void reader::scan_for_tags(config &conf, tag_data &t_data) {
+void reader::scan_for_tags(tag_data &t_data) {
     char req[32] = "", res[32] = "", extracted_part[32] = "";
     strcpy(req, conf.get_rfid_send_data_confbits().c_str());
     t_data.status = CR95HFlib_SendReceive(req, res);
@@ -79,4 +96,8 @@ void reader::scan_for_tags(config &conf, tag_data &t_data) {
 
     util::arr_slice(res, extracted_part, 28, 29);
     t_data.protocol_error_status = extracted_part;
+}
+
+void reader::toggle_deactivator_ready() {
+    deactivator_ready = !deactivator_ready;
 }

@@ -1,4 +1,4 @@
-#include "transmit.hpp"
+#include "transmitter.hpp"
 #include "../data/tag_data.hpp"
 #include "../config/config.hpp"
 #include <iostream>
@@ -10,7 +10,7 @@
 #include "NetException.h"
 #include "Object.h"
 
-void transmit::send_tag_to_server(config &conf, tag_data &t_data) {
+void transmitter::register_tag_with_server(config &conf, tag_data &t_data) {
     std::cout << "Transmitting payload to server.\n";
     int port = std::stoi(conf.get_reg_port());
     Poco::Net::HTTPClientSession session(conf.get_reg_hostname(), port);
@@ -35,7 +35,7 @@ void transmit::send_tag_to_server(config &conf, tag_data &t_data) {
     
 }
 
-bool transmit::unregister_tag_with_server(config &conf, tag_data &t_data) {
+bool transmitter::unregister_tag_with_server(config &conf, tag_data &t_data) {
     std::cout << "Unregistering tag with server.\n";
     int port = std::stoi(conf.get_reg_port());
     Poco::Net::HTTPClientSession session(conf.get_unreg_hostname(), port);
@@ -48,7 +48,6 @@ bool transmit::unregister_tag_with_server(config &conf, tag_data &t_data) {
     obj.set("loc", conf.get_location_id());
     obj.set("tag", t_data.tag_hex);
     request.setContentLength(calculate_content_length(obj));
-    char loc[] = {'l', 'o', 'c'};
 
     try {
         std::ostream &ostr = session.sendRequest(request);
@@ -64,7 +63,7 @@ bool transmit::unregister_tag_with_server(config &conf, tag_data &t_data) {
     return status ? false : true;
 }
 
-int transmit::calculate_content_length(Poco::JSON::Object &obj) {
+int transmitter::calculate_content_length(Poco::JSON::Object &obj) {
     int len = 0;
     
     for (auto i = obj.begin(); i != obj.end(); i++) {

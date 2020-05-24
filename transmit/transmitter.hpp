@@ -1,5 +1,5 @@
-#ifndef TRANSMIT_HPP
-#define TRANSMIT_HPP
+#ifndef TRANSMITTER_HPP
+#define TRANSMITTER_HPP
 
 class config;
 class tag_data;
@@ -9,9 +9,9 @@ namespace Poco {
     }
 }
 
-class transmit {
+class transmitter {
     public:
-        void send_tag_to_server(config &conf, tag_data &t_data);
+        void register_tag_with_server(config &conf, tag_data &t_data);
         bool unregister_tag_with_server(config &conf, tag_data &t_data);
     private:
         int calculate_content_length(Poco::JSON::Object &obj);

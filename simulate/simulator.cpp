@@ -1,5 +1,5 @@
-#include "../simulate/simulate.hpp"
-#include "../transmit/transmit.hpp"
+#include "../simulate/simulator.hpp"
+#include "../transmit/transmitter.hpp"
 #include "../util/util.hpp"
 #include "../config/config.hpp"
 #include "../data/tag_data.hpp"
@@ -10,27 +10,35 @@
 #include <chrono>
 #include <thread>
 
-simulate::simulate(config &con) : conf(con), trans(transmit()), t_col(tag_collection(trans, conf)) {}
+simulator::simulator(config &con) : conf(con), trans(transmitter()), t_col(tag_collection(conf, trans)), w_man(work_manager(t_col)), t_deact(tag_deactivator(conf, trans, w_man, this)) {
+    deactivator_ready = false;
+    seed_offset = 0;
+};
 
-void simulate::run() {
+void simulator::run() {
     int status = establish_connection();
     tag_data t_data;
 
     if (status == 0) {
         std::cout << "Connection established successfully.\n"
             << "Selecting protocol.\n";
-        status = select_protocol(conf.get_rfid_protocol());
+        status = select_protocol();
 
         if (status == 0) {
             int seed = std::stoi(conf.get_sim_seed_no());
+            t_deact.set_master(false);
 
             for (int i = 0; i < std::stoi(conf.get_repeat()); i++) {
+                if (deactivator_ready) {
+                    w_man.handle_msg(t_deact);
+                    toggle_deactivator_ready();
+                }
                 scan_for_tags(t_data, false, seed++);
 
                 if (t_data.tag_hex.size()) {
                     t_data.output_tag_summary(t_data);
-                    trans.send_tag_to_server(conf, t_data);
-                    t_col.connect(t_data);
+                    trans.register_tag_with_server(conf, t_data);
+                    t_col.connect(t_data, t_deact);
                 }
 
                 if (std::stoi(conf.get_repeat()) - i != 1) {
@@ -38,7 +46,14 @@ void simulate::run() {
                     t_data = tag_data();
                     std::this_thread::sleep_for(std::chrono::milliseconds(std::stoi(conf.get_scan_delay())));
                 }
+
+                if (deactivator_ready) {
+                    w_man.handle_msg(t_deact);
+                    toggle_deactivator_ready();
+                }
             }
+
+            t_deact.set_master(true);
         } else {
             std::cout << "RF field activation failed.\n";
         }
@@ -48,24 +63,28 @@ void simulate::run() {
 
 }
 
-int simulate::establish_connection(bool status) {
+int simulator::establish_connection() {
     std::cout << "Establishing connection...\n";
-    return status ? 0 : 1;
+    return 0;
 }
 
-int simulate::select_protocol(std::string protocol, bool status) {
-    std::cout << "Activating RF field for passive devices.\nSelected protocol: ISO " << protocol << ".\n";
-    return status ? 0 : 1;
+int simulator::select_protocol() {
+    std::cout << "Activating RF field for passive devices.\nSelected protocol: ISO " << conf.get_rfid_protocol() << ".\n";
+    return 0;
 }
 
-void simulate::scan_for_tags(tag_data &t_data, bool random, int seed, bool status) {
+void simulator::scan_for_tags(tag_data &t_data) {
+    scan_for_tags(t_data, false);
+}
+
+void simulator::scan_for_tags(tag_data &t_data, bool random, bool status) {
     std::mt19937_64 rng;
     u_int64_t seed_no;
 
     if (random) {
         seed_no = std::chrono::high_resolution_clock::now().time_since_epoch().count();
     } else {
-        seed_no = (u_int64_t)seed;
+        seed_no = (u_int64_t)(std::stoi(conf.get_sim_seed_no()) + seed_offset++);
     }
 
     if (status) {
@@ -104,4 +123,8 @@ void simulate::scan_for_tags(tag_data &t_data, bool random, int seed, bool statu
     } else {
         t_data.status = 4;
     }
+}
+
+void simulator::toggle_deactivator_ready() {
+    deactivator_ready = !deactivator_ready;
 }

@@ -1,12 +1,12 @@
 #include "reader/reader.hpp"
-#include "simulate/simulate.hpp"
+#include "simulate/simulator.hpp"
 #include "util/util.hpp"
 #include "config/config.hpp"
 #include <iostream>
 #include <vector>
 #include <regex>
 
-void display_menu(reader &rdr, simulate &sim, config &conf);
+void display_menu(reader &rdr, simulator &sim, config &conf);
 void configure(config &conf, bool first_time = true);
 void alert_error(std::string input, std::string reason);
 // refactor matcher - match pointer wtf???
@@ -14,15 +14,15 @@ void match_params(std::string input, std::regex regex, std::smatch* match, std::
 
 int main() {
     config conf;
-    reader rdr;
-    simulate sim = simulate(conf);
+    reader rdr = reader(conf);
+    simulator sim = simulator(conf);
 
     while (conf.run()) {
         display_menu(rdr, sim, conf);
     }
 }
 
-void display_menu(reader &rdr, simulate &sim, config &conf) {
+void display_menu(reader &rdr, simulator &sim, config &conf) {
     std::cout << "\nChoose option below:\na) configure\nb) run\nc) simulate (note: config applicable to simulations too)\nq) quit\n\nInvalid input or blank line defaults to run.\n";
     char input;
     std::cin >> input;
@@ -34,7 +34,7 @@ void display_menu(reader &rdr, simulate &sim, config &conf) {
     } else if (input == 'q') {
         conf.quit();
     } else {
-        rdr.run(conf);
+        rdr.run();
     }
 }
 

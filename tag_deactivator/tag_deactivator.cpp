@@ -1,23 +1,24 @@
 #include "tag_deactivator.hpp"
-#include "tag_collection.hpp"
-#include "../transmit/transmit.hpp"
+#include "../data/reader_device.hpp"
+#include "../transmit/transmitter.hpp"
 #include "../config/config.hpp"
+#include "../data/work_manager.hpp"
 #include "../data/tag_data.hpp"
 #include <thread>
+#include <functional>
 
-tag_deactivator::tag_deactivator(transmit &trns, config &con, tag_collection *t_co) : data(tag_data()), conf(con), trs(trns), t_col(t_co) {
+tag_deactivator::tag_deactivator(config &con, transmitter &trns, work_manager &w_ma, reader_device *r_de) : conf(con), trs(trns), w_man(w_ma), r_dev(r_de) {
     interval = 1000;
     sleep_duration = 0;
     postponed = false;
     active = false;
     asleep = false;
-    data.tag_hex = "ABBA1234";
 }
 
 void tag_deactivator::run() {
     if (!active) {
         active = true;
-        std::function<void()> callb = [this]{ deactivate(this, this->t_col, this->trs, this->conf); };
+        std::function<void()> callb = [this]{ deactivate(this, this->conf, this->trs, this->w_man, this->r_dev); };
         thr = std::thread(callb);
         thr.detach();
     }
@@ -31,6 +32,7 @@ void tag_deactivator::close() {
 
 void tag_deactivator::graceful_shutdown() {
     std::function<void()> callb = [this]{ shutdown(this); };
+    callb();
 }
 
 void tag_deactivator::sleep(int ms) {
@@ -46,6 +48,10 @@ void tag_deactivator::set_interval(int ms) {
     interval = ms;
 }
 
+void tag_deactivator::set_master(bool mode) {
+    master = mode;
+}
+
 void tag_deactivator::enqueue(tag &tg) {
     queue.push_back(tg);
 }
@@ -58,7 +64,7 @@ bool tag_deactivator::is_asleep() {
     return asleep;
 }
 
-void tag_deactivator::deactivate(tag_deactivator *t_deact, tag_collection *t_col, transmit trs, config conf) {
+void tag_deactivator::deactivate(tag_deactivator *t_deact, config &conf, transmitter &trs, work_manager &w_man, reader_device *r_dev) {
 
     while (t_deact->active) {
         if (t_deact->queue.size()) {
@@ -74,8 +80,12 @@ void tag_deactivator::deactivate(tag_deactivator *t_deact, tag_collection *t_col
             }
 
             std::pair<std::string, bool> pair = std::make_pair(data.tag_hex, status);
-            t_col->store_msg(pair);
-}       else if (!(t_deact->sleep_duration)) {
+            w_man.store_msg(pair);
+            
+            if (t_deact->master) {
+                w_man.handle_msg(*t_deact);
+            }
+        } else if (!(t_deact->sleep_duration)) {
             std::this_thread::sleep_for(std::chrono::milliseconds(t_deact->interval));
         } else {
             int slp = t_deact->sleep_duration;
@@ -90,7 +100,13 @@ void tag_deactivator::deactivate(tag_deactivator *t_deact, tag_collection *t_col
 
             if (!t_deact->postponed) {
                 std::pair<std::string, bool> pair = std::make_pair("REQ", true);
-                t_col->store_msg(pair);
+                w_man.store_msg(pair);
+
+                if (t_deact->master) {
+                    w_man.handle_msg(*t_deact);
+                } else {
+                    r_dev->toggle_deactivator_ready();
+                }
             }
             
             t_deact->postponed = false;
@@ -99,7 +115,7 @@ void tag_deactivator::deactivate(tag_deactivator *t_deact, tag_collection *t_col
 }
 
 void tag_deactivator::shutdown(tag_deactivator *t_deact) {
-    while (t_deact->queue.size()) {
+    while (t_deact->queue.size() || t_deact->is_asleep()) {
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
 
