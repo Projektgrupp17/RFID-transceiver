@@ -1,11 +1,11 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-#include "../data/config_id.hpp"
-#include "../data/config_url.hpp"
-#include "../data/config_reader.hpp"
-#include "../data/config_bitconf.hpp"
-#include "../data/config_sim.hpp"
+#include "config_id.hpp"
+#include "config_url.hpp"
+#include "config_reader.hpp"
+#include "config_bitconf.hpp"
+#include "config_sim.hpp"
 #include <string>
 #include <vector>
 

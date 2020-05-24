@@ -1,9 +1,9 @@
-#include "../simulate/simulator.hpp"
-#include "../transmit/transmitter.hpp"
-#include "../util/util.hpp"
-#include "../config/config.hpp"
-#include "../data/tag_data.hpp"
-#include "../data/tag_collection.hpp"
+#include "simulator.hpp"
+#include "transmitter.hpp"
+#include "util.hpp"
+#include "config.hpp"
+#include "tag_data.hpp"
+#include "tag_collection.hpp"
 #include <iostream>
 #include <string>
 #include <random>

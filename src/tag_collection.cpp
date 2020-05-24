@@ -1,9 +1,9 @@
-#include "../data/tag_collection.hpp"
-#include "../data/tag_data.hpp"
-#include "../data/tag.hpp"
-#include "../transmit/transmitter.hpp"
-#include "../config/config.hpp"
-#include "../tag_deactivator/tag_deactivator.hpp"
+#include "tag_collection.hpp"
+#include "tag_data.hpp"
+#include "tag.hpp"
+#include "transmitter.hpp"
+#include "config.hpp"
+#include "tag_deactivator.hpp"
 #include <thread>
 
 tag_collection::tag_collection(config &con, transmitter &trs) : trans(trs), conf(con) {

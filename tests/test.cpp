@@ -1,9 +1,9 @@
-#include "../config/config.hpp"
-#include "../util/interpreter.hpp"
-#include "../util/util.hpp"
-#include "../data/tag_collection.hpp"
-#include "../data/tag_data.hpp"
-#include "../transmit/transmitter.hpp"
+#include "../src/config.hpp"
+#include "../src/interpreter.hpp"
+#include "../src/util.hpp"
+#include "../src/tag_collection.hpp"
+#include "../src/tag_data.hpp"
+#include "../src/transmitter.hpp"
 #include "gtest/gtest.h"
 #include <thread>
 

@@ -3,6 +3,8 @@
 .POSIX:
 .SUFFIXES:
 GCC=g++
+SRC=./src
+BUILDPATH=./build
 CLIBS=/lib
 TLIBS=./tests
 POCOH=./include
@@ -10,41 +12,41 @@ CUSTOM_DEP=/usr/local/lib
 CPPFLAGS=-g -Wall -I$(CLIBS) -I$(POCOH) -I$(POCOH)/Poco/ -I$(POCOH)/Poco/Net -I$(POCOH)/Poco/JSON -I$(POCOH)/Poco/Dynamic -I$(TLIBS) -I$(TLIBS)/gtest -I$(TLIBS)/gtest/internal
 LDFLAGS=-g
 LDLIBS=-L/lib -L/usr/local/lib/poco/lib -L/home/drax/Projects/dev/projects/RFID-transceiver/lib -lCR95HF -lusb-1.0 -lPocoNet -lPocoJSON -lPocoFoundation -lgtest -lgtest_main -lpthread
-OBJFILES=main.o reader/reader.o simulate/simulator.o transmit/transmitter.o util/util.o util/interpreter.o config/config.o tests/test.o data/tag_data.o data/work_manager.o data/tag.o data/tag_collection.o tag_deactivator/tag_deactivator.o
+OBJFILES=$(BUILDPATH)/main.o $(BUILDPATH)/reader.o $(BUILDPATH)/simulator.o $(BUILDPATH)/transmitter.o $(BUILDPATH)/util.o $(BUILDPATH)/interpreter.o $(BUILDPATH)/config.o $(BUILDPATH)/test.o $(BUILDPATH)/tag_data.o $(BUILDPATH)/work_manager.o $(BUILDPATH)/tag.o $(BUILDPATH)/tag_collection.o $(BUILDPATH)/tag_deactivator.o
 
 all: rfid test
 rfid: $(OBJFILES)
-	$(GCC) $(LDFLAGS) -o rfid main.o reader/reader.o util/util.o util/interpreter.o simulate/simulator.o config/config.o data/work_manager.o data/tag_data.o data/tag.o data/tag_collection.o tag_deactivator/tag_deactivator.o transmit/transmitter.o $(LDLIBS)
-main.o: main.cpp reader/reader.hpp simulate/simulator.hpp config/config.hpp util/util.hpp
-	$(GCC) $(CPPFLAGS) -o main.o -c main.cpp
-reader/reader.o: reader/reader.cpp reader/reader.hpp util/util.hpp data/tag_data.hpp config/config.hpp transmit/transmitter.hpp include/libcr95hf.h
-	$(GCC) $(CPPFLAGS) -o reader/reader.o -c reader/reader.cpp
-simulate/simulator.o: simulate/simulator.cpp simulate/simulator.hpp data/tag_data.hpp config/config.hpp util/util.hpp transmit/transmitter.hpp
-	$(GCC) $(CPPFLAGS) -o simulate/simulator.o -c simulate/simulator.cpp
-transmit/transmitter.o: transmit/transmitter.cpp transmit/transmitter.hpp data/tag_data.hpp config/config.hpp include/Poco/Exception.h include/Poco/StreamCopier.h include/Poco/Net/NetException.h include/Poco/Net/HTTPRequest.h include/Poco/Net/HTTPResponse.h include/Poco/Net/HTTPClientSession.h include/Poco/JSON/Object.h
-	$(GCC) $(CPPFLAGS) -o transmit/transmitter.o -c transmit/transmitter.cpp
-util/util.o: util/util.cpp util/util.hpp
-	$(GCC) $(CPPFLAGS) -o util/util.o -c util/util.cpp
-util/interpreter.o: util/interpreter.cpp util/interpreter.hpp
-	$(GCC) $(CPPFLAGS) -o util/interpreter.o -c util/interpreter.cpp
-config/config.o: config/config.cpp config/config.hpp
-	$(GCC) $(CPPFLAGS) -o config/config.o -c config/config.cpp
-data/work_manager.o: data/work_manager.cpp data/work_manager.hpp data/tag_collection.hpp data/tag.hpp tag_deactivator/tag_deactivator.hpp
-	$(GCC) $(CPPFLAGS) -o data/work_manager.o -c data/work_manager.cpp
-data/tag_data.o: data/tag_data.cpp data/tag_data.hpp
-	$(GCC) $(CPPFLAGS) -o data/tag_data.o -c data/tag_data.cpp
-data/tag.o: data/tag.cpp data/tag.hpp data/tag_data.hpp
-	$(GCC) $(CPPFLAGS) -o data/tag.o -c data/tag.cpp
-data/tag_collection.o: data/tag_collection.cpp data/tag_collection.hpp data/tag.hpp data/tag_data.hpp transmit/transmitter.hpp config/config.hpp
-	$(GCC) $(CPPFLAGS) -o data/tag_collection.o -c data/tag_collection.cpp
-tag_deactivator/tag_deactivator.o: tag_deactivator/tag_deactivator.cpp tag_deactivator/tag_deactivator.hpp data/tag_data.hpp data/tag_collection.hpp transmit/transmitter.hpp config/config.hpp
-	$(GCC) $(CPPFLAGS) -o tag_deactivator/tag_deactivator.o -c tag_deactivator/tag_deactivator.cpp
-tests/test.o: tests/test.cpp config/config.hpp util/util.hpp util/interpreter.hpp data/tag_data.hpp data/tag_collection.hpp transmit/transmitter.hpp
-	$(GCC) $(CPPFLAGS) -o tests/test.o -c tests/test.cpp
+	$(GCC) $(LDFLAGS) -o rfid $(BUILDPATH)/main.o $(BUILDPATH)/reader.o $(BUILDPATH)/util.o $(BUILDPATH)/interpreter.o $(BUILDPATH)/simulator.o $(BUILDPATH)/config.o $(BUILDPATH)/work_manager.o $(BUILDPATH)/tag_data.o $(BUILDPATH)/tag.o $(BUILDPATH)/tag_collection.o $(BUILDPATH)/tag_deactivator.o $(BUILDPATH)/transmitter.o $(LDLIBS)
+$(BUILDPATH)/main.o: main.cpp $(SRC)/reader.hpp $(SRC)/simulator.hpp $(SRC)/config.hpp $(SRC)/util.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/main.o -c main.cpp
+$(BUILDPATH)/reader.o: $(SRC)/reader.cpp $(SRC)/reader.hpp $(SRC)/util.hpp $(SRC)/tag_data.hpp $(SRC)/config.hpp $(SRC)/transmitter.hpp include/libcr95hf.h
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/reader.o -c $(SRC)/reader.cpp
+$(BUILDPATH)/simulator.o: $(SRC)/simulator.cpp $(SRC)/simulator.hpp $(SRC)/tag_data.hpp $(SRC)/config.hpp $(SRC)/util.hpp $(SRC)/transmitter.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/simulator.o -c $(SRC)/simulator.cpp
+$(BUILDPATH)/transmitter.o: $(SRC)/transmitter.cpp $(SRC)/transmitter.hpp $(SRC)/tag_data.hpp $(SRC)/config.hpp include/Poco/Exception.h include/Poco/StreamCopier.h include/Poco/Net/NetException.h include/Poco/Net/HTTPRequest.h include/Poco/Net/HTTPResponse.h include/Poco/Net/HTTPClientSession.h include/Poco/JSON/Object.h
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/transmitter.o -c $(SRC)/transmitter.cpp
+$(BUILDPATH)/util.o: $(SRC)/util.cpp $(SRC)/util.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/util.o -c $(SRC)/util.cpp
+$(BUILDPATH)/interpreter.o: $(SRC)/interpreter.cpp $(SRC)/interpreter.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/interpreter.o -c $(SRC)/interpreter.cpp
+$(BUILDPATH)/config.o: $(SRC)/config.cpp $(SRC)/config.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/config.o -c $(SRC)/config.cpp
+$(BUILDPATH)/work_manager.o: $(SRC)/work_manager.cpp $(SRC)/work_manager.hpp $(SRC)/tag_collection.hpp $(SRC)/tag.hpp $(SRC)/tag_deactivator.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/work_manager.o -c $(SRC)/work_manager.cpp
+$(BUILDPATH)/tag_data.o: $(SRC)/tag_data.cpp $(SRC)/tag_data.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/tag_data.o -c $(SRC)/tag_data.cpp
+$(BUILDPATH)/tag.o: $(SRC)/tag.cpp $(SRC)/tag.hpp $(SRC)/tag_data.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/tag.o -c $(SRC)/tag.cpp
+$(BUILDPATH)/tag_collection.o: $(SRC)/tag_collection.cpp $(SRC)/tag_collection.hpp $(SRC)/tag.hpp $(SRC)/tag_data.hpp $(SRC)/transmitter.hpp $(SRC)/config.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/tag_collection.o -c $(SRC)/tag_collection.cpp
+$(BUILDPATH)/tag_deactivator.o: $(SRC)/tag_deactivator.cpp $(SRC)/tag_deactivator.hpp $(SRC)/tag_data.hpp $(SRC)/tag_collection.hpp $(SRC)/transmitter.hpp $(SRC)/config.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/tag_deactivator.o -c $(SRC)/tag_deactivator.cpp
+$(BUILDPATH)/test.o: tests/test.cpp $(SRC)/config.hpp $(SRC)/util.hpp $(SRC)/interpreter.hpp $(SRC)/tag_data.hpp $(SRC)/tag_collection.hpp $(SRC)/transmitter.hpp
+	$(GCC) $(CPPFLAGS) -o $(BUILDPATH)/test.o -c tests/test.cpp
 clean:
 	rm -f core rfid test $(OBJFILES)
 test: $(OBJFILES)
-	$(GCC) $(LDFLAGS) -o test tests/test.o config/config.o util/util.o util/interpreter.o data/work_manager.o data/tag.o data/tag_data.o data/tag_collection.o tag_deactivator/tag_deactivator.o transmit/transmitter.o $(LDLIBS)
+	$(GCC) $(LDFLAGS) -o test $(BUILDPATH)/test.o $(BUILDPATH)/config.o $(BUILDPATH)/util.o $(BUILDPATH)/interpreter.o $(BUILDPATH)/work_manager.o $(BUILDPATH)/tag.o $(BUILDPATH)/tag_data.o $(BUILDPATH)/tag_collection.o $(BUILDPATH)/tag_deactivator.o $(BUILDPATH)/transmitter.o $(LDLIBS)
 check:
 	./test
 #dependencies:

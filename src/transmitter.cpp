@@ -1,6 +1,6 @@
 #include "transmitter.hpp"
-#include "../data/tag_data.hpp"
-#include "../config/config.hpp"
+#include "tag_data.hpp"
+#include "config.hpp"
 #include <iostream>
 #include "HTTPClientSession.h"
 #include "HTTPRequest.h"

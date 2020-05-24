@@ -1,9 +1,9 @@
 #ifndef TAG_DEACTIVATOR_HPP
 #define TAG_DEACTIVATOR_HPP
 
-#include "../data/tag.hpp"
-#include "../data/tag_data.hpp"
-#include "../data/reader_device.hpp"
+#include "tag.hpp"
+#include "tag_data.hpp"
+#include "reader_device.hpp"
 #include <thread>
 #include <list>
 

@@ -1,9 +1,9 @@
 #include "tag_deactivator.hpp"
-#include "../data/reader_device.hpp"
-#include "../transmit/transmitter.hpp"
-#include "../config/config.hpp"
-#include "../data/work_manager.hpp"
-#include "../data/tag_data.hpp"
+#include "reader_device.hpp"
+#include "transmitter.hpp"
+#include "config.hpp"
+#include "work_manager.hpp"
+#include "tag_data.hpp"
 #include <thread>
 #include <functional>
 

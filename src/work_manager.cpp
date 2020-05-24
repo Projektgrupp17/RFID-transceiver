@@ -1,7 +1,7 @@
 #include "work_manager.hpp"
 #include "tag_collection.hpp"
 #include "tag.hpp"
-#include "../tag_deactivator/tag_deactivator.hpp"
+#include "tag_deactivator.hpp"
 
 work_manager::work_manager(tag_collection &t_co) : t_col(t_co) {};
 

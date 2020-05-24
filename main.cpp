@@ -1,7 +1,7 @@
-#include "reader/reader.hpp"
-#include "simulate/simulator.hpp"
-#include "util/util.hpp"
-#include "config/config.hpp"
+#include "src/reader.hpp"
+#include "src/simulator.hpp"
+#include "src/util.hpp"
+#include "src/config.hpp"
 #include <iostream>
 #include <vector>
 #include <regex>

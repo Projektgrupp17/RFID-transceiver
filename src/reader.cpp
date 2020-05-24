@@ -1,8 +1,8 @@
 #include "reader.hpp"
-#include "../config/config.hpp"
-#include "../data/tag_data.hpp"
-#include "../util/util.hpp"
-#include "../transmit/transmitter.hpp"
+#include "config.hpp"
+#include "tag_data.hpp"
+#include "util.hpp"
+#include "transmitter.hpp"
 #include <iostream>
 #include <cstring>
 #include <thread>

@@ -1,11 +1,11 @@
 #ifndef SIMULATOR_HPP
 #define SIMULATOR_HPP
 
-#include "../data/reader_device.hpp"
-#include "../transmit/transmitter.hpp"
-#include "../data/tag_collection.hpp"
-#include "../tag_deactivator/tag_deactivator.hpp"
-#include "../data/work_manager.hpp"
+#include "reader_device.hpp"
+#include "transmitter.hpp"
+#include "tag_collection.hpp"
+#include "tag_deactivator.hpp"
+#include "work_manager.hpp"
 #include <iostream>
 
 class config;

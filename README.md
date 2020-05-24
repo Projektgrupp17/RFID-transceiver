@@ -53,6 +53,5 @@ or, for a more persistent solution:
 
 ## Todo
 - Implement more sophisticated solutions for rescan and protocol rotation.
-- Implement solution recognizing RFID tags leaving and entering the environment.
 - Expand current configuration possibilities.
 - More documentation, tests and comments.
